@@ -100,4 +100,4 @@ def download_mp4():
     return jsonify({'error': 'Download failed'}), 400
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=0000, debug=True)
+    app.run(host='0.0.0.0', port=8000)
