@@ -72,7 +72,7 @@ def download_file(link):
         return None, None
 
 @app.route('/')
-def index():
+def ConvertToMp3():
     return render_template('ConvertToMp3.html')
 
 @app.route('/download', methods=['POST'])
