@@ -13,9 +13,9 @@ DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), "Downloads")
 def get_download_directory():
     """Get appropriate download directory based on platform."""
     system = platform.system()
-    if 'ANDROID_STORAGE' in os.environ:
+    if system == 'ANDROID_STORAGE' in os.environ:
         return '/storage/emulated/0/Download'
-    elif system == 'Darwin':  # MacOS
+    elif system == 'Mac':
         return os.path.join(os.path.expanduser("~"), "Downloads")
     elif system == 'Windows':
         return os.path.join(os.path.expanduser("~"), "Downloads")
@@ -27,8 +27,8 @@ def rename_mp4_to_mp3(mp4_filepath):
     os.rename(mp4_filepath, mp3_filepath)
     return mp3_filepath
 
-def download_file(link, format='mp3'):
-    """Download YouTube video in specified format."""
+def download_file(link):
+    """Download YouTube video or file from a link in MP4 format and convert to MP3."""
     download_dir = get_download_directory()
     filepath = None
 
@@ -44,8 +44,8 @@ def download_file(link, format='mp3'):
                 filename = ydl.prepare_filename(info)
                 filepath = os.path.join(download_dir, os.path.basename(filename))
 
-                # Convert to MP3 if format is mp3
-                if format == 'mp3' and filepath.endswith('.mp4'):
+                # Convert to MP3 after downloading
+                if filepath.endswith('.mp4'):
                     mp3_filepath = rename_mp4_to_mp3(filepath)
                     return filepath, mp3_filepath
 
@@ -60,8 +60,8 @@ def download_file(link, format='mp3'):
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
 
-            # Convert to MP3 if format is mp3
-            if format == 'mp3' and filepath.endswith('.mp4'):
+            # Convert to MP3 after downloading
+            if filepath.endswith('.mp4'):
                 mp3_filepath = rename_mp4_to_mp3(filepath)
                 return filepath, mp3_filepath
 
@@ -72,32 +72,18 @@ def download_file(link, format='mp3'):
         return None, None
 
 @app.route('/')
-def ConvertToMp3():
-    return render_template('ConvertToMp3.html')
-
-@app.route('/ConvertToMp4')
-def ConvertToMp4():
-    return render_template('ConvertToMp4.html')
+def index():
+    return render_template('index.html')
 
 @app.route('/download', methods=['POST'])
-def download_mp3():
+def download():
     link = request.form.get('link')
-    filepath, mp3_filepath = download_file(link, format='mp3')
+    filepath, mp3_filepath = download_file(link)
 
     if filepath and mp3_filepath:
         return send_from_directory(directory=get_download_directory(), path=os.path.basename(mp3_filepath), as_attachment=True)
 
     return jsonify({'error': 'Download failed'}), 400
 
-@app.route('/download_mp4', methods=['POST'])
-def download_mp4():
-    link = request.form.get('link')
-    filepath, _ = download_file(link, format='mp4')
-
-    if filepath:
-        return send_from_directory(directory=get_download_directory(), path=os.path.basename(filepath), as_attachment=True)
-
-    return jsonify({'error': 'Download failed'}), 400
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=0000, debug=True)  # Set a valid port number (e.g., 5000)
